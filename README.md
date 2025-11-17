@@ -1,1 +1,5 @@
 # Swym-Nation-Company-Ltd
+Swym Nation Company Limited, a company based in St.Catherine Jamaica which is dedicated to teaching swimming as a life skill, and was first established as Gina’s Swim School in 1966 by Georgina Boland is an organization with a strong commitment to promoting swimming as an essential life skill, the company has built a reputation for excellence in  aquatic education and training. Swym Nation delivers professional swimming services to  children, adults, schools, and organizations, equipping Jamaicans of all ages with the skills, discipline, and confidence to excel in and around the water. 
+
+The problem to be solved is that most of the processes of the company are currently being done manually, therefore a software is to be developed that automates Swyn Nation’s administrative operations. This system will replace manual processes such as registration, payment tracking, attendance recording, and process monitoring with a secure and efficient digital platform. The intended users of this system will be administrators being Managers, Instructors, Support Staff such as Receptionists and Assistants, and the Community/ Public. 
+
