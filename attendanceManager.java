@@ -1,0 +1,292 @@
+import java.io.*; 
+import java.util.*; 
+
+class Student {
+    int id; 
+    String name; 
+
+    Student(int id, String name) {
+        this.id = id; 
+        this.name = name; 
+    }
+}
+
+class attendanceRecord {
+    int studentId;
+    String date; 
+    char status;  //P = Present, A = Absent, L = Late
+
+    attendanceRecord(int studentId, String date, char status){
+        this.studentId = studentId; 
+        this.date = date; 
+        this.status = status; 
+    }
+}
+
+public class attendanceManager{
+    private static final String STUDENTS_FILE = "students.csv";
+    private static final String ATTENDANCE_FILE = "attendance.csv";
+    private static final Scanner scanner = new Scanner(System.in); 
+
+    private static List<Student> students = new ArrayList<>();
+    private static List<attendanceRecord> attendanceRecords = new ArrayList<>(); 
+
+    // ---------- CORE FEATURES ----------
+    private static void addStudent(){
+        System.out.print("Enter student name: ");
+        String name = scanner.nextLine().trim();
+        if (name.isEmpty()){
+            System.err.println("Name cannot be empty.");
+            return;
+        }
+
+        int id = students.size() + 1;  // Simple ID assignment
+        students.add(new Student(id, name));
+        System.out.println("Added student: " + id + " - " + name);
+    }
+
+    private static void listStudents(){
+        if (students.isEmpty()){
+            System.out.println("No students available.");
+            return; 
+        }
+
+        System.out.println("Student List:");
+        for (Student s : students){
+            System.out.println("ID: " + s.id + ", Name: " + s.name);
+        }
+    }
+
+    private static void markAttendance(){
+        if (students.isEmpty()){
+            System.out.println("No students available to mark attendance.");
+            return; 
+        }
+
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        String date = scanner.nextLine().trim();
+        if (date.isEmpty()){
+            System.err.println("Date cannot be empty.");
+            return; 
+        } else if (date.length() != 10 || date.charAt(4) != '-' || date.charAt(7) != '-') {
+            System.err.println("Date format is incorrect. Use YYYY-MM-DD.");
+            return;
+        }
+
+        for (Student s: students){
+            System.out.print("Mark attendance for " + s.name + " (P/A/L): ");
+            String statusInput = scanner.nextLine().trim().toUpperCase();
+            if (statusInput.isEmpty() || !(statusInput.equals("P") || statusInput.equals("A") || statusInput.equals("L"))){
+                System.err.println("Invalid status. Use P, A, or L.");
+                continue; 
+            }
+            char status = statusInput.charAt(0);
+
+            attendanceRecord existingRecord = findAttendace(s.id, date);
+            if (existingRecord != null){
+                existingRecord.status = status; 
+                System.out.println("Updated attendance for " + s.name);
+            } else {
+                attendanceRecords.add(new attendanceRecord(s.id, date, status));
+                System.out.println("Marked attendance for " + s.name);
+            }
+        }
+
+        System.out.println("Attendance marking completed for date: " + date);
+
+    }
+
+    private static attendanceRecord findAttendace(int studentId, String date){
+        for (attendanceRecord r : attendanceRecords){
+            if (r.studentId == studentId && r.date.equals((date))){
+                return r; 
+            }
+        }
+        return null; 
+        
+    }
+
+    private static Student findStudent(int id){
+        for (Student s: students){
+            if (s.id == id){
+                return s; 
+            }
+        }
+        return null; 
+    }
+
+    private static void viewByStudent(){
+        System.out.println("Enter student ID:");
+        int id ; 
+        try {
+            id = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid ID format.");
+            return;
+        }
+
+        Student student = findStudent(id);
+        if (student == null){
+            System.err.println("Student not found.");
+            return; 
+        }
+
+        System.out.println("Attendance for " + student.name + ":");
+        int total = 0, present = 0, absent = 0, late = 0;
+        for (attendanceRecord r : attendanceRecords){
+            if (r.studentId == id){
+                System.out.println(r.date + "\t" + r.status);
+                total++;
+                switch (r.status) {
+                    case 'P':
+                        present++;
+                        break;
+                    case 'A':
+                        absent++;
+                        break;
+                    case 'L':
+                        late++;
+                        break;
+                }
+            }
+        } 
+        if (total == 0){
+            System.out.println("No attendance records found for this student.");
+            return; 
+        }
+        System.out.println("Total Attendance Records: " + total);
+        System.out.println("Present: " + present);
+        System.out.println("Absent: " + absent);
+        System.out.println("Late: " + late);
+    }
+
+    private static void viewByDate(){
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        String date = scanner.nextLine().trim();
+        if (date.isEmpty()){
+            System.err.println("Date cannot be empty.");
+            return; 
+        } else if (date.length() != 10 || date.charAt(4) != '-' || date.charAt(7) != '-') {
+            System.err.println("Date format is incorrect. Use YYYY-MM-DD.");
+            return;
+        }
+
+        System.out.println("Attendance for date: " + date + ":");
+        System.out.println("ID\tName\tStatus");
+
+        for(Student s : students){
+            attendanceRecord record = findAttendace(s.id, date);
+            char status = (record != null) ? record.status : 'N'; // N = Not marked
+            System.out.println(s.id + "\t" + s.name + "\t" + status);
+        }
+
+    }
+
+    // ---------- FILE I/O ----------
+    private static void loadStudents(){
+        try (BufferedReader br = new BufferedReader(new FileReader(STUDENTS_FILE))){
+            String line; 
+            while ((line = br.readLine()) != null){
+                String[] parts = line.split(",",2);
+                if (parts.length == 2){
+                    int id = Integer.parseInt(parts[0].trim());
+                    String name = parts[1].trim();
+                    students.add(new Student(id, name));
+                }
+            }
+        } catch (IOException e){
+            System.err.println("Error loading students: " + e.getMessage());
+        }
+
+    }
+
+    private static void saveStudents(){
+        try (PrintWriter pw = new PrintWriter(new FileWriter(STUDENTS_FILE))){
+            for (Student s : students){
+                pw.println(s.id + "," + s.name);
+            }
+        } catch (IOException e){
+            System.err.println("Error saving students: " + e.getMessage());
+        }
+
+    }
+    
+    private static void loadAttendance(){
+        try(BufferedReader br = new BufferedReader(new FileReader(ATTENDANCE_FILE))){
+            String line; 
+            while ((line = br.readLine()) != null){
+                String[] parts = line.split(",",3);
+                if (parts.length == 3){
+                    int studentId = Integer.parseInt(parts[0].trim());
+                    String date = parts[1].trim();
+                    char status = parts[2].trim().charAt(0);
+                    attendanceRecords.add(new attendanceRecord(studentId, date, status));
+                }
+            }
+        } catch (IOException e){
+            System.err.println("Error loading attendance: " + e.getMessage());
+        }
+
+    }
+
+    private static void saveAttendance(){
+        try(PrintWriter pw = new PrintWriter(new FileWriter(ATTENDANCE_FILE))){
+            for (attendanceRecord r : attendanceRecords){
+                pw.println(r.studentId + "," + r.date + "," + r.status);
+            }
+        } catch (IOException e){
+            System.err.println("Error saving attendance: " + e.getMessage());
+        }
+
+    }
+
+    // ---------- MAIN MENU ----------
+    public static void main(String[] args){
+        loadStudents(); 
+        loadAttendance(); 
+
+        while(true){
+            System.out.println("\n--- Attendance Management ---");
+            System.out.println("1. Add student");
+            System.out.println("2. List students");
+            System.out.println("3. Mark attendance");
+            System.out.println("4. View attendance by date");
+            System.out.println("5. View attendance by student");
+            System.out.println("6. Save data");
+            System.out.println("7. Exit");
+            System.out.print("Choose: ");
+
+            String choice = scanner.nextLine().trim(); 
+            switch (choice) {
+                case "1":  
+                    addStudent(); 
+                    break; 
+                case "2": 
+                    listStudents(); 
+                    break; 
+                case "3":
+                    markAttendance(); 
+                    break;
+                case "4":
+                    viewByDate();
+                    break;
+                case "5":
+                    viewByStudent();
+                    break;
+                case "6":
+                    saveStudents();
+                    saveAttendance();
+                    System.out.println("Data saved.");
+                    break;
+                case "7":
+                    saveStudents();
+                    saveAttendance();
+                    System.out.println("Exiting. Data saved.");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+}
