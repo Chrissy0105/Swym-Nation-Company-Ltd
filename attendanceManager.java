@@ -33,31 +33,34 @@ public class attendanceManager{
 
     // ---------- CORE FEATURES ----------
     private static void addStudent(){
-        System.out.print("Enter student name: ");
+        clearScreen.clear();
+        System.out.print("\nEnter student name: ");
         String name = scanner.nextLine().trim();
         if (name.isEmpty()){
             System.err.println("Name cannot be empty.");
             return;
         }
 
-        int id = students.size() + 1;  // Simple ID assignment
+        int id = students.size() + 1;  // Simple ID assignment protocol 
         students.add(new Student(id, name));
         System.out.println("Added student: " + id + " - " + name);
     }
 
     private static void listStudents(){
+        clearScreen.clear();
         if (students.isEmpty()){
             System.out.println("No students available.");
             return; 
         }
 
-        System.out.println("Student List:");
+        System.out.println("\nStudent List:");
         for (Student s : students){
             System.out.println("ID: " + s.id + ", Name: " + s.name);
         }
     }
 
     private static void markAttendance(){
+        clearScreen.clear();
         if (students.isEmpty()){
             System.out.println("No students available to mark attendance.");
             return; 
@@ -116,6 +119,7 @@ public class attendanceManager{
     }
 
     private static void viewByStudent(){
+        clearScreen.clear();
         System.out.println("Enter student ID:");
         int id ; 
         try {
@@ -155,6 +159,7 @@ public class attendanceManager{
     }
 
     private static void viewByDate(){
+        clearScreen.clear();
         System.out.print("Enter date (YYYY-MM-DD): ");
         String date = scanner.nextLine().trim();
         if (date.isEmpty()){
@@ -232,6 +237,21 @@ public class attendanceManager{
             System.err.println("Error saving attendance: " + e.getMessage());
         }
 
+    }
+
+    public class clearScreen {
+        public static void clear() {
+            try {
+                if (System.getProperty("os.name").contains("Windows")) {
+                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+                } else {
+                    System.out.print("\033[H\033[2J");
+                    System.out.flush();
+                }
+            } catch (IOException | InterruptedException ex) {
+                System.err.println("Error clearing screen: " + ex.getMessage());
+            }
+        }
     }
 
     // ---------- MAIN MENU ----------
