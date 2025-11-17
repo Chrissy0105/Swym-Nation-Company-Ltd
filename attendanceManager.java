@@ -28,8 +28,8 @@ public class attendanceManager{
     private static final String ATTENDANCE_FILE = "attendance.csv";
     private static final Scanner scanner = new Scanner(System.in); 
 
-    private static List<Student> students = new ArrayList<>();
-    private static List<attendanceRecord> attendanceRecords = new ArrayList<>(); 
+    private static final List<Student> students = new ArrayList<>();
+    private static final List<attendanceRecord> attendanceRecords = new ArrayList<>(); 
 
     // ---------- CORE FEATURES ----------
     private static void addStudent(){
@@ -138,15 +138,9 @@ public class attendanceManager{
                 System.out.println(r.date + "\t" + r.status);
                 total++;
                 switch (r.status) {
-                    case 'P':
-                        present++;
-                        break;
-                    case 'A':
-                        absent++;
-                        break;
-                    case 'L':
-                        late++;
-                        break;
+                    case 'P' -> present++;
+                    case 'A' -> absent++;
+                    case 'L' -> late++;
                 }
             }
         } 
@@ -258,33 +252,23 @@ public class attendanceManager{
 
             String choice = scanner.nextLine().trim(); 
             switch (choice) {
-                case "1":  
-                    addStudent(); 
-                    break; 
-                case "2": 
-                    listStudents(); 
-                    break; 
-                case "3":
-                    markAttendance(); 
-                    break;
-                case "4":
-                    viewByDate();
-                    break;
-                case "5":
-                    viewByStudent();
-                    break;
-                case "6":
+                case "1" -> addStudent();
+                case "2" -> listStudents();
+                case "3" -> markAttendance();
+                case "4" -> viewByDate();
+                case "5" -> viewByStudent();
+                case "6" -> {
                     saveStudents();
                     saveAttendance();
                     System.out.println("Data saved.");
-                    break;
-                case "7":
+                }
+                case "7" -> {
                     saveStudents();
                     saveAttendance();
                     System.out.println("Exiting. Data saved.");
                     return;
-                default:
-                    System.out.println("Invalid choice. Try again.");
+                }
+                default -> System.out.println("Invalid choice. Try again.");
             }
         }
     }
