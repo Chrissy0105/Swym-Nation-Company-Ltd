@@ -98,6 +98,38 @@ public class attendanceManager{
         System.out.println("Attendance marking completed for date: " + date);
 
     }
+    private static void updateAttendance(){
+        clearScreen.clear();
+        System.out.print("Enter date (YYYY-MM-DD) to update attendance: ");
+        String date = scanner.nextLine().trim();
+        if (date.isEmpty()){
+            System.err.println("Date cannot be empty.");
+            return; 
+        } else if (date.length() != 10 || date.charAt(4) != '-' || date.charAt(7) != '-') {
+            System.err.println("Date format is incorrect. Use YYYY-MM-DD.");
+            return;
+        }
+
+        for (Student s: students){
+            attendanceRecord record = findAttendace(s.id, date);
+            if (record == null){
+                System.out.println("No existing record for " + s.name + " on " + date + ". Skipping.");
+                continue; 
+            }
+
+            System.out.print("Current status for " + s.name + " is " + record.status + ". Enter new status (P/A/L): ");
+            String statusInput = scanner.nextLine().trim().toUpperCase();
+            if (statusInput.isEmpty() || !(statusInput.equals("P") || statusInput.equals("A") || statusInput.equals("L"))){
+                System.err.println("Invalid status. Use P, A, or L.");
+                continue; 
+            }
+            char status = statusInput.charAt(0);
+            record.status = status; 
+            System.out.println("Updated attendance for " + s.name);
+        }
+
+        System.out.println("Attendance update completed for date: " + date);
+    }
 
     private static attendanceRecord findAttendace(int studentId, String date){
         for (attendanceRecord r : attendanceRecords){
@@ -171,7 +203,7 @@ public class attendanceManager{
         }
 
         System.out.println("Attendance for date: " + date + ":");
-        System.out.println("ID\tName\tStatus");
+        System.out.println("ID\tName\t\tStatus");
 
         for(Student s : students){
             attendanceRecord record = findAttendace(s.id, date);
@@ -179,6 +211,21 @@ public class attendanceManager{
             System.out.println(s.id + "\t" + s.name + "\t" + status);
         }
 
+    }
+
+    public class clearScreen {
+        public static void clear() {
+            try {
+                if (System.getProperty("os.name").contains("Windows")) {
+                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+                } else {
+                    System.out.print("\033[H\033[2J");
+                    System.out.flush();
+                }
+            } catch (IOException | InterruptedException ex) {
+                System.err.println("Error clearing screen: " + ex.getMessage());
+            }
+        }
     }
 
     // ---------- FILE I/O ----------
@@ -239,21 +286,6 @@ public class attendanceManager{
 
     }
 
-    public class clearScreen {
-        public static void clear() {
-            try {
-                if (System.getProperty("os.name").contains("Windows")) {
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                } else {
-                    System.out.print("\033[H\033[2J");
-                    System.out.flush();
-                }
-            } catch (IOException | InterruptedException ex) {
-                System.err.println("Error clearing screen: " + ex.getMessage());
-            }
-        }
-    }
-
     // ---------- MAIN MENU ----------
     public static void main(String[] args){
         loadStudents(); 
@@ -264,10 +296,11 @@ public class attendanceManager{
             System.out.println("1. Add student");
             System.out.println("2. List students");
             System.out.println("3. Mark attendance");
-            System.out.println("4. View attendance by date");
-            System.out.println("5. View attendance by student");
-            System.out.println("6. Save data");
-            System.out.println("7. Exit");
+            System.out.println("4. Update attendance");
+            System.out.println("5. View attendance by date");
+            System.out.println("6. View attendance by student");
+            System.out.println("7. Save data");
+            System.out.println("8. Exit");
             System.out.print("Choose: ");
 
             String choice = scanner.nextLine().trim(); 
@@ -275,14 +308,15 @@ public class attendanceManager{
                 case "1" -> addStudent();
                 case "2" -> listStudents();
                 case "3" -> markAttendance();
-                case "4" -> viewByDate();
-                case "5" -> viewByStudent();
-                case "6" -> {
+                case "4" -> updateAttendance();
+                case "5" -> viewByDate();
+                case "6" -> viewByStudent();
+                case "7" -> {
                     saveStudents();
                     saveAttendance();
                     System.out.println("Data saved.");
                 }
-                case "7" -> {
+                case "8" -> {
                     saveStudents();
                     saveAttendance();
                     System.out.println("Exiting. Data saved.");
