@@ -43,3 +43,4 @@ public class ProgressRecord {
     public void setNotes(String notes) { this.notes = notes; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
+

@@ -16,8 +16,13 @@ public class ProgressManager {
     }
 
     public String assignStage(String instructorId, String studentId, int stageValue, String termNotes) {
-        if (!access.hasInstructorPrivileges(instructorId)) return "ERROR: Unauthorized access";
-        if (stageValue < 1 || stageValue > 8) return "ERROR: Invalid stage value";
+        if (!access.hasInstructorPrivileges(instructorId))
+            return "ERROR: Unauthorized access";
+
+        // Input Validation Fix: Stages must be between 1 and 8
+        if (stageValue < 1 || stageValue > 8) {
+            return "ERROR: Stage assignment failed. Invalid stage value: " + stageValue;
+        }
 
         String recordId = UUID.randomUUID().toString();
         ProgressRecord record = new ProgressRecord(recordId, studentId, instructorId, "classA", stageValue, termNotes);
@@ -32,9 +37,17 @@ public class ProgressManager {
     }
 
     public String updateStageEntry(String instructorId, String recordId, int newStage, String newNotes) {
-        if (!access.hasInstructorPrivileges(instructorId)) return "ERROR: Unauthorized access";
+        if (!access.hasInstructorPrivileges(instructorId))
+            return "ERROR: Unauthorized access";
+
+        // Add validation for update method as well
+        if (newStage < 1 || newStage > 8) {
+            return "ERROR: Update failed. Invalid stage value: " + newStage;
+        }
+
         ProgressRecord old = db.getProgressRecord(recordId);
-        if (old == null) return "ERROR: Record not found";
+        if (old == null)
+            return "ERROR: Record not found";
 
         old.setStage(newStage);
         old.setNotes(newNotes);

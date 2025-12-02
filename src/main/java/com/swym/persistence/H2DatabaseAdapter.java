@@ -18,6 +18,9 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
         try (Connection conn = getConnection();
                 Statement stmt = conn.createStatement()) {
 
+            // Explicitly drop the view first to ensure no old, broken definition
+            stmt.executeUpdate("DROP VIEW IF EXISTS operational_view");
+
             // Adults table
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS adults (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY," +
@@ -50,20 +53,31 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
                     "createdAt TIMESTAMP," +
                     "updatedAt TIMESTAMP)");
 
-            // Operational view for reports
-            stmt.executeUpdate(
-                    "CREATE OR REPLACE VIEW operational_view AS " +
-                            "SELECT p.id AS record_id, " +
-                            "       p.studentId AS student_id, " +
-                            "       COALESCE(a.name, c.childName, p.studentId) AS student_name, " +
-                            "       p.classId AS class_id, " +
-                            "       p.instructorId AS instructor_id, " +
-                            "       p.stage AS stage, " +
-                            "       p.notes AS notes, " +
-                            "       p.createdAt AS date " +
-                            "FROM progress_records p " +
-                            "LEFT JOIN adults a ON p.studentId = a.email " +
-                            "LEFT JOIN children c ON p.studentId = c.email");
+            // This guarantees only the single latest record for each student, even with
+            // identical timestamps.
+            String createViewSql = """
+                    CREATE OR REPLACE VIEW operational_view AS
+                    WITH RankedProgress AS (
+                        SELECT
+                            p.*,
+                            ROW_NUMBER() OVER (PARTITION BY p.studentId ORDER BY p.updatedAt DESC, p.createdAt DESC) as rn
+                        FROM progress_records p
+                    )
+                    SELECT
+                        rp.id AS record_id,
+                        rp.studentId AS student_id,
+                        COALESCE(a.name, c.childName, rp.studentId) AS student_name,
+                        rp.classId AS class_id,
+                        rp.instructorId AS instructor_id,
+                        rp.stage AS stage,
+                        rp.notes AS notes,
+                        rp.createdAt AS date
+                    FROM RankedProgress rp
+                    LEFT JOIN adults a ON rp.studentId = a.email
+                    LEFT JOIN children c ON rp.studentId = c.email
+                    WHERE rp.rn = 1
+                    """;
+            stmt.executeUpdate(createViewSql);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -71,7 +85,10 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(JDBC_URL, USER, PASS);
+        Connection conn = DriverManager.getConnection(JDBC_URL, USER, PASS);
+        // Explicitly set auto-commit to true to ensure data is visible immediately.
+        conn.setAutoCommit(true);
+        return conn;
     }
 
     // Adult methods
@@ -89,7 +106,7 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
             ps.setString(7, String.join(",", adult.getGoals()));
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -153,7 +170,7 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
             ps.setString(6, child.getEmail());
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -268,9 +285,10 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
         }
     }
 
-    // The MISSING method
     @Override
     public void updateStudentStage(String studentId, int newStage) {
+        // This method should be inserting a new record, not updating, which is what the
+        // ProgressManager does.
         String sql = "UPDATE progress_records SET stage=?, updatedAt=? WHERE studentId=?";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -279,7 +297,7 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
             ps.setString(3, studentId);
             int updated = ps.executeUpdate();
 
-            // If student has no record yet → insert
+            // If student has no record yet then insert
             if (updated == 0) {
                 String insertSql = "INSERT INTO progress_records (id, studentId, stage, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)";
                 try (PreparedStatement ps2 = conn.prepareStatement(insertSql)) {
@@ -304,6 +322,7 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, studentId);
+            ps.setQueryTimeout(10); // Added safety
             ResultSet rs = ps.executeQuery();
             if (rs.next())
                 return rs.getInt("stage");
@@ -336,7 +355,7 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
         return rows;
     }
 
-    // ---------------- Helper ----------------
+    // Helper function
     private ProgressRecord mapProgressRecord(ResultSet rs) throws SQLException {
         return new ProgressRecord(
                 rs.getString("id"),

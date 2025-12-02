@@ -1,12 +1,79 @@
-2025-12-01 19:15:01.294624-05:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
-SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
-2025-12-01 19:20:04.117547-05:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
-SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
-2025-12-01 19:26:17.348828-05:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
-SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
-2025-12-01 20:49:17.562541-05:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
-SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
+2025-12-02 09:57:18.707411-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PROGRESS_RECORDS" not found (this database is empty); SQL statement:
+-- Clean up all tables to ensure a fresh test environment
+DELETE FROM progress_records [42104-240]
+2025-12-02 09:57:18.718389-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ADULTS" not found (this database is empty); SQL statement:
+
+DELETE FROM adults [42104-240]
+2025-12-02 09:57:18.719555-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CHILDREN" not found (this database is empty); SQL statement:
+
+DELETE FROM children [42104-240]
+2025-12-02 10:01:56.223020-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "TRUNCATE TABLE [*]IF EXISTS progress_records"; expected "identifier"; SQL statement:
+TRUNCATE TABLE IF EXISTS progress_records [42001-240]
+2025-12-02 10:01:56.241837-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "\000aTRUNCATE TABLE [*]IF EXISTS adults"; expected "identifier"; SQL statement:
+
+TRUNCATE TABLE IF EXISTS adults [42001-240]
+2025-12-02 10:01:56.243436-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "\000aTRUNCATE TABLE [*]IF EXISTS children"; expected "identifier"; SQL statement:
+
+TRUNCATE TABLE IF EXISTS children [42001-240]
+2025-12-02 10:04:14.771223-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Cannot drop "PROGRESS_RECORDS" because "OPERATIONAL_VIEW" depends on it; SQL statement:
+-- Fix: Use DROP TABLE IF EXISTS, as  [90107-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.command.ddl.DropTable.prepareDrop(DropTable.java:104)
+	at org.h2.command.ddl.DropTable.update(DropTable.java:129)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:139)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.tools.RunScript.process(RunScript.java:255)
+	at org.h2.tools.RunScript.process(RunScript.java:186)
+	at org.h2.tools.RunScript.process(RunScript.java:313)
+	at org.h2.tools.RunScript.runTool(RunScript.java:139)
+	at org.h2.tools.RunScript.main(RunScript.java:66)
+2025-12-02 10:04:14.781788-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Cannot drop "ADULTS" because "OPERATIONAL_VIEW" depends on it; SQL statement:
+
+DROP TABLE IF EXISTS adult [90107-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.command.ddl.DropTable.prepareDrop(DropTable.java:104)
+	at org.h2.command.ddl.DropTable.update(DropTable.java:129)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:139)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.tools.RunScript.process(RunScript.java:255)
+	at org.h2.tools.RunScript.process(RunScript.java:186)
+	at org.h2.tools.RunScript.process(RunScript.java:313)
+	at org.h2.tools.RunScript.runTool(RunScript.java:139)
+	at org.h2.tools.RunScript.main(RunScript.java:66)
+2025-12-02 10:04:14.783804-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Cannot drop "CHILDREN" because "OPERATIONAL_VIEW" depends on it; SQL statement:
+
+DROP TABLE IF EXISTS childre [90107-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.command.ddl.DropTable.prepareDrop(DropTable.java:104)
+	at org.h2.command.ddl.DropTable.update(DropTable.java:129)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:139)
+	at org.h2.command.Command.executeUpdate(Command.java:306)
+	at org.h2.command.Command.executeUpdate(Command.java:250)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.tools.RunScript.process(RunScript.java:255)
+	at org.h2.tools.RunScript.process(RunScript.java:186)
+	at org.h2.tools.RunScript.process(RunScript.java:313)
+	at org.h2.tools.RunScript.runTool(RunScript.java:139)
+	at org.h2.tools.RunScript.main(RunScript.java:66)

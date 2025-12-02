@@ -14,44 +14,82 @@ public class RegistrationTest {
     public static void main(String[] args) {
         H2DatabaseAdapter db = new H2DatabaseAdapter();
 
-        // Clear tables for a clean test run
-        try (Connection conn = db.getConnection();
-                Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DELETE FROM adults");
-            stmt.executeUpdate("DELETE FROM children");
-            stmt.executeUpdate("DELETE FROM progress_records");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         // Initialize registration service
         RegistrationService service = new RegistrationService(db);
 
-        // Create sample AdultRegistrant
+        // Test Case 1: Standard Adult and Child Registration
         AdultRegistrant adult = new AdultRegistrant(
                 "John Doe",
                 LocalDate.of(1990, 5, 20),
                 "555-1234",
                 "emergency1",
-                "john@example.com",
+                "john345@yyahoo.com", // Unique email
                 "None",
                 List.of("Basic survival", "Improve stroke"));
 
-        // Create sample ChildRegistrant
         ChildRegistrant child = new ChildRegistrant(
                 "Timmy",
                 "Mary Doe",
                 8,
                 "Behavioral issues",
                 "Asthma",
-                "timmy@example.com");
+                "timmy123@gmail.com"); // Unique email
 
         // Register them
-        service.registerAdult(adult);
-        service.registerChild(child);
+        try {
+            service.registerAdult(adult);
+            service.registerChild(child);
+        } catch (Exception e) {
+            System.err.println("Registration failed for standard test case: " + e.getMessage());
+        }
+
+        // Test Case A: Minimal Adult (Stress Test)
+        System.out.println("\n--- Test A: Minimal Adult Registration ---");
+        AdultRegistrant minimalAdult = new AdultRegistrant(
+                "Min Man",
+                LocalDate.of(1980, 1, 1),
+                "555-9999",
+                "Self",
+                "min@test.com",
+                null,
+                List.of("Basic"));
+        try {
+            service.registerAdult(minimalAdult);
+            System.out.println("SUCCESS: Minimal Adult registered.");
+        } catch (Exception e) {
+            System.err.println("ERROR: Minimal Adult registration failed: " + e.getMessage());
+        }
+
+        // Test Case B: Duplicate Email Attempt
+        System.out.println("\n--- Test B: Duplicate Registration (Expect Failure) ---");
+
+        boolean failedAsExpected = false;
+        try {
+            // Attempt to re-register John Doe
+            service.registerAdult(adult);
+
+            System.err.println("ERROR: Duplicate registration succeeded when it should have failed.");
+
+        } catch (Exception e) {
+            // The exception was thrown
+            if (e.getMessage() != null && e.getMessage().contains("violation")) {
+                System.out.println("SUCCESS: Duplicate registration correctly prevented by DB integrity.");
+                failedAsExpected = true; // Mark test as passed
+            } else {
+                // Unexpected exception
+                System.err.println("ERROR: Test failed with an unexpected exception:");
+                e.printStackTrace();
+            }
+        }
+
+        // This final check ensures that if an exception was NOT thrown, it then logs an
+        // error.
+        if (!failedAsExpected) {
+            System.err.println("CRITICAL ERROR: Test B did not pass. Expected database exception not found.");
+        }
 
         // Print all adults
-        System.out.println("Registered Adults:");
+        System.out.println("\nRegistered Adults:");
         for (AdultRegistrant a : service.getAllAdults()) {
             System.out.println(a.getName() + " | " + a.getEmail() + " | Goals: " + String.join(", ", a.getGoals()));
         }
