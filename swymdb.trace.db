@@ -1,0 +1,12 @@
+2025-12-01 19:15:01.294624-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
+SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
+2025-12-01 19:20:04.117547-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
+SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
+2025-12-01 19:26:17.348828-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
+SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
+2025-12-01 20:49:17.562541-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "OPERATIONAL_VIEW" not found; SQL statement:
+SELECT * FROM operational_view WHERE TRUE AND date BETWEEN '2025-11-24' AND '2025-12-01' AND student_id='student1' AND class_id='classA' AND instructor_id='inst1' [42102-240]
