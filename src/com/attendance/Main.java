@@ -1,3 +1,4 @@
+//Presentation Layer
 package com.attendance; 
 
 import com.attendance.model.Student;
@@ -22,21 +23,23 @@ public class Main {
             System.out.println("\n--- Attendance Management---");
             System.out.println("1. Add student");
             System.out.println("2. List students");
-            System.out.println("3. Mark/Update attendance");
-            System.out.println("4. View by Date");
-            System.out.println("5. View by Student");
-            System.out.println("6. Exit");
+            System.out.println("3. Mark attendance");
+            System.out.println("4. Update attendance");
+            System.out.println("5. View by Date");
+            System.out.println("6. View by Student");
+            System.out.println("7. Exit");
             System.out.print("Choose: ");
 
             String choice = scanner.nextLine().trim();
             try {
                 switch (choice) {
-                    case "1" -> uiAddStudent();
-                    case "2" -> uiListStudents();
-                    case "3" -> uiMarkAttendance();
-                    case "4" -> uiViewByDate();
-                    case "5" -> uiViewByStudent();
-                    case "6" -> {
+                    case "1" -> addStudent();
+                    case "2" -> listStudents();
+                    case "3" -> markAttendance();
+                    case "4" -> updateAttendance();
+                    case "5" -> viewByDate();
+                    case "6" -> viewByStudent();
+                    case "7" -> {
                         service.saveData();
                         System.out.println("Data saved. Exiting.");
                         return;
@@ -49,7 +52,7 @@ public class Main {
         }
     }
 
-    private static void uiAddStudent(){
+    private static void addStudent(){
         clearScreen.clear();
         System.out.print("Enter student name: ");
         String name = scanner.nextLine().trim();
@@ -57,7 +60,7 @@ public class Main {
         System.out.println("Added Student ID: " + s.getId());
     }
 
-    private static void uiListStudents(){
+    private static void listStudents(){
         clearScreen.clear();
         List<Student> list = service.getAllStudents();
         if (list.isEmpty()) System.out.println("No students.");
@@ -66,40 +69,71 @@ public class Main {
         }
     }
 
-    private static void uiMarkAttendance() {
+    private static void markAttendance(){
         clearScreen.clear();
-        System.out.print("Enter Date (YYYY-MM-DD): ");
-        String date = scanner.nextLine();
-        
-        List<Student> students = service.getAllStudents();
-        if (students.isEmpty()) {
-            System.out.println("No students to mark.");
+        if (service.getAllStudents().isEmpty()) {
+            System.out.println("No students available to mark attendance.");
             return;
         }
 
-        for (Student s : students) {
-            AttendanceRecord existing = service.getAttendance(s.getId(), date);
-            String prompt = (existing == null) 
-                ? "Mark for " + s.getName() + " (P/A/L): " 
-                : "Update for " + s.getName() + " (Current: " + existing.getStatus() + ") (P/A/L): ";
+        System.out.print("Enter Date (YYYY-MM-DD): ");
+        String date = scanner.nextLine().trim();
+
+        for (Student s: service.getAllStudents()){
+            System.out.print("Mark attendance for " + s.getName() + " (P/A/L): ");
+            String status = scanner.nextLine().trim().toUpperCase();
+            if (status.isEmpty() || (!status.equals("P") && !status.equals("A") && !status.equals("L"))) {
+                System.out.println("Invalid status. Skipping " + s.getName() + ".");
+                continue;
+            }
             
-            System.out.print(prompt);
-            String status = scanner.nextLine();
-            
-            try {
-                service.markAttendance(s.getId(), date, status);
-                System.out.println("Saved.");
-            } catch (IllegalArgumentException e) {
-                System.err.println(e.getMessage());
+            char statChar = status.charAt(0);
+
+            service.markAttendance(s.getId(), date, String.valueOf(statChar));
+            if (service.getAttendance(s.getId(), date) != null) {
+                System.out.println("Attendance marked for " + s.getName() + ".");
+            } else {
+                System.out.println("Failed to mark attendance for " + s.getName() + ".");
             }
         }
     }
 
-    private static void uiViewByDate() {
+    private static void updateAttendance(){
+        clearScreen.clear();
+        if (service.getAllStudents().isEmpty()) {
+            System.out.println("No students available to update attendance.");
+            return;
+        }
+
+        System.out.print("Enter Date (YYYY-MM-DD): ");
+        String date = scanner.nextLine().trim();
+
+        for (Student s: service.getAllStudents()){
+            AttendanceRecord existing = service.getAttendance(s.getId(), date);
+            if (existing == null) {
+                System.out.println("No existing record for " + s.getName() + " on " + date + ". Skipping.");
+                continue;
+            }
+
+            System.out.print("Update attendance for " + s.getName() + " (Current: " + existing.getStatus() + ") (P/A/L): ");
+            String status = scanner.nextLine().trim().toUpperCase();
+            if (status.isEmpty() || (!status.equals("P") && !status.equals("A") && !status.equals("L"))) {
+                System.out.println("Invalid status. Skipping " + s.getName() + ".");
+                continue;
+            }
+            
+            char statChar = status.charAt(0);
+
+            service.updateAttendance(s.getId(), date, String.valueOf(statChar));
+            System.out.println("Attendance updated for " + s.getName() + ".");
+        }
+    }
+
+    private static void viewByDate() {
         clearScreen.clear();
         System.out.print("Enter Date (YYYY-MM-DD): ");
         String date = scanner.nextLine();
-        System.out.println("ID\tName\tStatus");
+        System.out.println("ID\tName\t\tStatus");
         for (Student s : service.getAllStudents()) {
             AttendanceRecord r = service.getAttendance(s.getId(), date);
             char status = (r != null) ? r.getStatus() : '-';
@@ -107,7 +141,7 @@ public class Main {
         }
     }
 
-    private static void uiViewByStudent() {
+    private static void viewByStudent() {
         clearScreen.clear();
         System.out.print("Enter Student ID: ");
         try {

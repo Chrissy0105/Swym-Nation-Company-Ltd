@@ -1,3 +1,4 @@
+//Business Logic Layer
 package com.attendance.service;
 
 import com.attendance.model.Student;
@@ -41,7 +42,20 @@ public class SchoolService {
 
         //Create record and send to repo
         AttendanceRecord record = new AttendanceRecord(studentId, date, status);
-        attendanceRepo.addOrUpdate(record);
+        attendanceRepo.add(record);
+    }
+
+    public void updateAttendance(int studentId, String date, String statusInput) {
+        validateDate(date);
+        char status = validateStatus(statusInput);
+
+        AttendanceRecord existing = attendanceRepo.findByStudentAndDate(studentId, date);
+        if (existing == null) {
+            throw new IllegalArgumentException("No existing record found for student ID " + studentId + " on " + date);
+        }
+
+        existing.setStatus(status);
+        attendanceRepo.update(existing);
     }
 
     public AttendanceRecord getAttendance(int studentId, String date) {
@@ -52,10 +66,12 @@ public class SchoolService {
         return attendanceRepo.findAll();
     }
 
-    // --- Validation---
+    // --- Validation Checks---
     private void validateDate(String date) {
         if (date == null || date.length() != 10 || date.charAt(4) != '-' || date.charAt(7) != '-') {
             throw new IllegalArgumentException("Invalid date format. Use YYYY-MM-DD.");
+        } else if (date.isEmpty()) {
+            throw new IllegalArgumentException("Date cannot be empty.");
         }
     }
 

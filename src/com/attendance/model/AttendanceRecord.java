@@ -1,9 +1,10 @@
+//Entity
 package com.attendance.model;
 
 public class AttendanceRecord {
     private final int studentId;
     private final String date; 
-    private char status; 
+    private char status; // P - Present, A - Absent, L - Late
 
     public AttendanceRecord(int studentId, String date, char status){
         this.studentId = studentId;

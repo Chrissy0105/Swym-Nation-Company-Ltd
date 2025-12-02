@@ -1,3 +1,4 @@
+//Data Acess Layer
 package com.attendance.repository;
 
 import java.io.BufferedReader;
@@ -11,7 +12,7 @@ import java.util.List;
 import com.attendance.model.AttendanceRecord;
 
 public class AttendanceRepository {
-    private static final String ATTENDANCE_FILE = "attendance.csv"; 
+    private static final String ATTENDANCE_FILE = "C:\\Users\\dejor\\Downloads\\Projects\\Software Engineering Coding\\Swym-Nation-Company-Ltd\\data\\attendance.csv"; 
     private final List<AttendanceRecord> records = new ArrayList<>();
 
     public AttendanceRepository(){
@@ -29,7 +30,7 @@ public class AttendanceRepository {
                 .orElse(null);
     }
 
-    public void addOrUpdate(AttendanceRecord record){
+    public void add(AttendanceRecord record){
         // Check if record exists or else add 
         AttendanceRecord existing = findByStudentAndDate(record.getStudentId(), record.getDate());
         if(existing != null){
@@ -55,6 +56,16 @@ public class AttendanceRepository {
             }
         } catch (IOException e) { 
             // Log error or ignore if file doesn't exist yet
+        }
+    }
+
+    public void update(AttendanceRecord record){
+        AttendanceRecord existing = findByStudentAndDate(record.getStudentId(), record.getDate());
+        if(existing != null){
+            existing.setStatus(record.getStatus());
+            saveToFile();
+        } else {
+            throw new IllegalArgumentException("Attendance record not found for update.");
         }
     }
 
