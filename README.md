@@ -1,5 +1,92 @@
-# Swym-Nation-Company-Ltd
-Swym Nation Company Limited, a company based in St.Catherine Jamaica which is dedicated to teaching swimming as a life skill, and was first established as Gina’s Swim School in 1966 by Georgina Boland is an organization with a strong commitment to promoting swimming as an essential life skill, the company has built a reputation for excellence in  aquatic education and training. Swym Nation delivers professional swimming services to  children, adults, schools, and organizations, equipping Jamaicans of all ages with the skills, discipline, and confidence to excel in and around the water. 
+Here is a professional `README.md` file tailored for your project. You can save this as `README.md` in the root folder (`AttendanceApp/`).
 
-The problem to be solved is that most of the processes of the company are currently being done manually, therefore a software is to be developed that automates Swyn Nation’s administrative operations. This system will replace manual processes such as registration, payment tracking, attendance recording, and process monitoring with a secure and efficient digital platform. The intended users of this system will be administrators being Managers, Instructors, Support Staff such as Receptionists and Assistants, and the Community/ Public. 
+***
 
+# Attendance Management System (Layered Architecture)
+
+A robust console-based Java application designed to track student attendance. This project demonstrates the transition from a Monolithic architecture to a structured **Layered Architecture**, ensuring separation of concerns, maintainability, and scalability.
+
+## 🚀 Features
+
+*   **Student Management:** Register new students with auto-incremented IDs.
+*   **Attendance Tracking:** Mark attendance as Present (P), Absent (A), or Late (L).
+*   **Data Persistence:** Automatically saves and loads data using CSV files (`students.csv`, `attendance.csv`).
+*   **Reporting:**
+    *   View attendance sheets by specific date.
+    *   View individual student statistics (Total Present/Absent/Late).
+*   **Validation:** Prevents invalid dates and status codes via the Business Logic layer.
+
+## 🏗️ Architectural Design
+
+This project follows the **Layered Architecture** pattern, dividing the code into four distinct logical layers:
+
+1.  **Presentation Layer (`com.attendance.Main`)**
+    *   Handles user input and prints output to the console.
+    *   Communicates only with the Service Layer.
+2.  **Service Layer (`com.attendance.service`)**
+    *   Contains business logic (e.g., calculating stats, validating date formats).
+    *   Acts as a bridge between the UI and the Data layer.
+3.  **Data Access Layer / Repository (`com.attendance.repository`)**
+    *   Handles file I/O operations.
+    *   Reads and writes to CSV files.
+4.  **Model Layer (`com.attendance.model`)**
+    *   Simple POJOs (Plain Old Java Objects) representing `Student` and `AttendanceRecord`.
+
+## 📂 Project Structure
+
+```text
+AttendanceApp/
+│
+├── data/                        # CSV storage folder
+│   ├── students.csv             # Created automatically
+│   └── attendance.csv           # Created automatically
+│
+├── src/
+│   └── com/
+│       └── attendance/
+│           ├── Main.java        # Entry Point (UI)
+│           ├── model/           # Data Classes
+│           ├── repository/      # File Handling
+│           └── service/         # Business Logic
+│
+└── README.md                    # Project Documentation
+```
+
+## 🛠️ Prerequisites
+
+*   **Java Development Kit (JDK):** Version 8 or higher.
+
+## ⚡ How to Run
+
+### 1. Compile
+Open your terminal/command prompt, navigate to the `src` directory, and run:
+
+```bash
+cd AttendanceApp/src
+javac com/attendance/Main.java
+```
+
+### 2. Run
+Execute the program from the `src` directory using the fully qualified class name:
+
+```bash
+java com.attendance.Main
+```
+
+*Note: Ensure the `data/` folder exists in the root `AttendanceApp/` directory. If the program cannot find the CSV files, it will create new ones, but the folder must exist.*
+
+## 💾 Data Storage Format
+
+The application stores data in `CSV` format in the `data/` directory.
+
+**students.csv**
+```csv
+1,John Doe
+2,Jane Smith
+```
+
+**attendance.csv**
+```csv
+1,2023-10-25,P
+2,2023-10-25,A
+```
