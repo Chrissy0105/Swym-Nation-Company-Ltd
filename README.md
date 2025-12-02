@@ -1,5 +1,3 @@
-Here is a professional `README.md` file tailored for your project. You can save this as `README.md` in the root folder (`AttendanceApp/`).
-
 ***
 
 # Attendance Management System (Layered Architecture)
