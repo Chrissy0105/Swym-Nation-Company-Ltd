@@ -268,7 +268,6 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
         }
     }
 
-    // The MISSING method
     @Override
     public void updateStudentStage(String studentId, int newStage) {
         String sql = "UPDATE progress_records SET stage=?, updatedAt=? WHERE studentId=?";
@@ -336,7 +335,7 @@ public class H2DatabaseAdapter implements DatabaseAdapter {
         return rows;
     }
 
-    // ---------------- Helper ----------------
+    // Helper functiom
     private ProgressRecord mapProgressRecord(ResultSet rs) throws SQLException {
         return new ProgressRecord(
                 rs.getString("id"),
